@@ -25,8 +25,12 @@ h2 small{font:500 .85rem system-ui;color:var(--mute)}
 details{margin:10px 0;background:var(--soft);border-radius:8px;padding:8px 12px}
 summary{cursor:pointer;color:var(--accent);font-weight:600}
 details p{margin:8px 0 2px;overflow-wrap:anywhere}
-label{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
-label:first-of-type{border-top:0}
+.task{border-top:1px solid var(--line);padding:2px 0}
+label{display:flex;gap:10px;align-items:flex-start;padding:7px 0;cursor:pointer}
+.how{margin:0 0 8px 30px}
+.how ol{margin:8px 0;padding-left:20px}
+.how li{margin:5px 0;overflow-wrap:anywhere}
+.how p{margin:6px 0;overflow-wrap:anywhere}
 input[type=checkbox]{width:20px;height:20px;margin-top:3px;accent-color:var(--ok);flex:none}
 label.done span{color:var(--mute);text-decoration:line-through}
 .err{padding:14px;border:1px solid #c0392b;border-radius:8px}
@@ -59,6 +63,11 @@ function parse(t){
 }
 const isDone=r=>r.id in saved?saved[r.id]:r.done==='1';
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(saved))}catch(e){}};
+const openSet=new Set();
+document.addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.k;if(k){e.target.open?openSet.add(k):openSet.delete(k)}},true);
+const how=r=>{if(!r.details)return'';
+  const L=r.details.split('\n').filter(Boolean),N=/^(Tip|Search|Warning):/;
+  return `<details class="how" data-k="t${r.id}" ${openSet.has('t'+r.id)?'open':''}><summary>Step-by-step guide</summary><ol>${L.filter(l=>!N.test(l)).map(s=>`<li>${link(s)}</li>`).join('')}</ol>${L.filter(l=>N.test(l)).map(n=>{const i=n.indexOf(':');return `<p><b>${esc(n.slice(0,i+1))}</b>${link(n.slice(i+1))}</p>`}).join('')}</details>`};
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const link=s=>esc(s).replace(/https?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
 
@@ -68,8 +77,8 @@ function render(){
     const items=rows.filter(r=>r.section==s), tasks=items.filter(r=>r.type!='guide');
     const d=tasks.filter(isDone).length, fut=tasks.every(r=>r.type=='future');
     return `<section class="${fut?'future':''}"><h2>${esc(s)}<small>${d}/${tasks.length}</small></h2>`+
-      items.filter(r=>r.type=='guide').map(g=>`<details><summary>How to implement</summary><p>${link(g.text)}</p></details>`).join('')+
-      tasks.map(r=>`<label class="${isDone(r)?'done':''}"><input type="checkbox" data-id="${r.id}" ${isDone(r)?'checked':''}><span>${esc(r.text)}</span></label>`).join('')+
+      items.filter(r=>r.type=='guide').map(g=>`<details data-k="g${g.id}" ${openSet.has('g'+g.id)?'open':''}><summary>How to implement</summary><p>${link(g.text)}</p></details>`).join('')+
+      tasks.map(r=>`<div class="task"><label class="${isDone(r)?'done':''}"><input type="checkbox" data-id="${r.id}" ${isDone(r)?'checked':''}><span>${esc(r.text)}</span></label>${how(r)}</div>`).join('')+
       `</section>`}).join('');
   const core=rows.filter(r=>r.type=='task'), n=core.filter(isDone).length;
   document.getElementById('count').textContent=`${n} of ${core.length} launch tasks done (future ideas not counted)`;
@@ -80,7 +89,7 @@ document.addEventListener('change',e=>{
 document.getElementById('rst').onclick=()=>{if(confirm('Clear all saved progress in this browser?')){saved={};save();render()}};
 document.getElementById('exp').onclick=()=>{
   const q=v=>/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;
-  const csv=['id,section,type,text,done',...rows.map(r=>[r.id,r.section,r.type,r.text,isDone(r)?1:0].map(q).join(','))].join('\n')+'\n';
+  const csv=['id,section,type,text,details,done',...rows.map(r=>[r.id,r.section,r.type,r.text,r.details||'',isDone(r)?1:0].map(q).join(','))].join('\n')+'\n';
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download='checklist.csv';a.click();URL.revokeObjectURL(a.href)};
 

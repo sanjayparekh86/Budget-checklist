@@ -1,53 +1,123 @@
-id,section,type,text,done
-1,1. Domain and email,guide,"Full steps are in your setup doc: https://claude.ai/artifact/DKKUaRRwxsnpbCCqNZarJ3. Stack: domain on Vercel, Resend free for no-reply@ and Supabase auth emails, ImprovMX free for support@, Gmail Send mail as for replies. Vercel Hobby is fine while the app is free; move to Pro before charging.",0
-2,1. Domain and email,task,Buy the domain on Vercel and attach it to your project (SSL is automatic),0
-3,1. Domain and email,task,Add the domain in Resend and paste its DKIM/SPF records into Vercel DNS,0
-4,1. Domain and email,task,Enter Resend SMTP in Supabase (smtp.resend.com / 465 / user resend / API key as password),0
-5,1. Domain and email,task,Set Supabase Site URL and redirect URLs; customise the email templates,0
-6,1. Domain and email,task,Create the support@ alias in ImprovMX and add its MX + SPF records,0
-7,1. Domain and email,task,Set up Gmail Send mail as for support@ using Resend SMTP,0
-8,1. Domain and email,task,Add the _dmarc TXT record,0
-9,1. Domain and email,task,Test signup / password reset / magic link end to end,0
-10,2. Auto-record transactions,guide,"Idea: bank and UPI alert emails are forwarded to a dedicated address (for example track@yourdomain.com). An inbound-email webhook calls a Supabase Edge Function that extracts amount, date and merchant and saves a pending transaction for you to confirm. Check that your email provider offers inbound email on its free plan before building. Privacy: store only the parsed fields, not the full email body, and tell users clearly what is read. Start with one bank format, then add others.",0
-11,2. Auto-record transactions,task,Collect 5-10 real alert emails from one bank/UPI app (hide personal details) as test samples,0
-12,2. Auto-record transactions,task,Create the receiving address and point inbound mail to a webhook,0
-13,2. Auto-record transactions,task,Write a Supabase Edge Function that parses amount / date / merchant / debit-credit,0
-14,2. Auto-record transactions,task,Save results as pending transactions with a Confirm / Edit / Reject screen,0
-15,2. Auto-record transactions,task,Verify the sender and add a per-user secret so strangers cannot inject transactions,0
-16,2. Auto-record transactions,task,Write a Gmail filter guide so users can auto-forward only their bank alerts,0
-17,3. Five launch posts,guide,"Goal: show why an app beats Excel or a notebook. Keep each post to one problem, one screenshot or short clip, and one call to action. Post on LinkedIn, X, Reddit and Instagram as suits your audience.",0
-18,3. Five launch posts,task,"Post 1: Why your Excel expense sheet breaks after month 3",0
-19,3. Five launch posts,task,"Post 2: Notebook vs app: what you forget to write down",0
-20,3. Five launch posts,task,"Post 3: Demo: bank alert email becomes a recorded transaction automatically",0
-21,3. Five launch posts,task,"Post 4: Moving from Excel in 5 minutes (CSV import)",0
-22,3. Five launch posts,task,"Post 5: Behind the build: what I learned making this solo",0
-23,4. Mobile app (Google Play),guide,"Easiest hybrid route: wrap your existing web app with Capacitor, so one codebase serves web and Android. Google Play needs a one-time developer registration fee. New personal developer accounts usually must run a closed test with a group of testers for about two weeks before production access; check Google's current rules before planning dates. Build the app as a responsive PWA first.",0
-24,4. Mobile app (Google Play),task,Make the web app fully mobile-responsive,0
-25,4. Mobile app (Google Play),task,Add Capacitor and build an Android project,0
-26,4. Mobile app (Google Play),task,"Test on a real phone: login, deep links for email confirmation",0
-27,4. Mobile app (Google Play),task,Create the Play Console account and pay the registration fee,0
-28,4. Mobile app (Google Play),task,"Prepare store listing: icon, screenshots, description, privacy policy URL",0
-29,4. Mobile app (Google Play),task,Recruit testers and run the closed test,0
-30,4. Mobile app (Google Play),task,Apply for production access and publish,0
-31,5. Reaching potential users,guide,"Start where people already complain about spreadsheets. Talk to 10 people before you write more code. Track every conversation in a simple list (name, channel, feedback, follow-up date).",0
-32,5. Reaching potential users,task,Write a one-line pitch and define your first target group (students / freelancers / households),0
-33,5. Reaching potential users,task,Message 20 people you know and ask how they track money today,0
-34,5. Reaching potential users,task,"Join 3-5 relevant communities (Reddit finance subs, Telegram/WhatsApp groups) and help before promoting",0
-35,5. Reaching potential users,task,Build a simple landing page with a waitlist form,0
-36,5. Reaching potential users,task,Offer the first 50 users free in exchange for feedback calls,0
-37,5. Reaching potential users,task,Ask each happy user for one referral and one testimonial,0
-38,5. Reaching potential users,task,"Review weekly: signups, active users, feedback themes",0
-39,6. Move from Supabase to AWS,guide,"Do this only with real paying customers and a clear reason (cost, compliance, scale). Supabase is Postgres, so your data can move with pg_dump. The harder parts are auth, row-level security rules, storage and edge functions, which you must replace (for example RDS or Aurora for the database, Cognito for auth, S3 for files, Lambda for functions). Consider upgrading Supabase to its paid plan first; it is usually far less work than a migration.",0
-40,6. Move from Supabase to AWS,task,"Define the trigger: for example 50+ paying users, or a limit you keep hitting",0
-41,6. Move from Supabase to AWS,task,"List every Supabase feature you use (auth, RLS, storage, realtime, functions)",0
-42,6. Move from Supabase to AWS,task,Try the paid Supabase plan before deciding to leave,0
-43,6. Move from Supabase to AWS,task,Build the AWS copy in staging and test a pg_dump restore,0
-44,6. Move from Supabase to AWS,task,"Plan the cutover: announce downtime, take a final backup, switch DNS and keys",0
-45,7. Future ideas,future,CSV / Excel import so users can bring old sheets,0
-46,7. Future ideas,future,Budgets with alerts when a category is almost used,0
-47,7. Future ideas,future,Recurring transactions and bill reminders,0
-48,7. Future ideas,future,Receipt photo upload with automatic reading,0
-49,7. Future ideas,future,Monthly report emailed to the user (sent through Resend),0
-50,7. Future ideas,future,Export data to CSV / PDF and automatic backups,0
-51,7. Future ideas,future,Multi-currency and shared household accounts,0
-52,7. Future ideas,future,Subscription billing (Razorpay or Stripe) and a referral programme,0
+id,section,type,text,details,done
+1,1. Domain and email,guide,"Beginner path, in order: decide a name, buy the domain, learn where DNS records go, then connect sending (Resend + Supabase), receiving (ImprovMX + Gmail), DMARC and testing. Open each task's Step-by-step guide below. Full reference doc: https://claude.ai/artifact/DKKUaRRwxsnpbCCqNZarJ3. Vercel Hobby is fine while the app is free; move to Pro before charging. Replace yourdomain.com everywhere with your real domain.",,0
+99,1. Domain and email,task,Decide your domain name and set up a place to keep passwords,"Pick 3 short name ideas (easy to spell, no hyphens, ideally .com) and check they are not another company's brand.
+Set up a password manager (search: Bitwarden free) or a private note. You will create about 6 logins and 2 API keys in this section.
+Save every login and key there the moment you create it.
+Tip: Use one dedicated email address for all these accounts, for example a new Gmail just for your business.",0
+2,1. Domain and email,task,Buy the domain on Vercel and attach it to your project (SSL is automatic),"Go to vercel.com and log in (or sign up; Continue with GitHub is the quickest).
+In the dashboard click Domains in the top menu.
+Use the search box to type the name you want, for example myapp.com, and press Search.
+Check the first-year price and the renewal price before paying. Avoid names marked premium that cost hundreds.
+Add a payment card and complete the purchase. Keep auto-renew on so you do not lose the domain.
+Open your project, go to Settings, then Domains, click Add Domain, enter your domain and confirm. Wait for a green Valid Configuration.
+Open https://yourdomain.com in the browser. You should see your site with a padlock. HTTPS is automatic, so do not buy SSL anywhere.
+Search: Vercel buy domain, Vercel add domain to project
+Tip: Vercel's menus change sometimes. If you cannot find a button, use the search box at the top of the dashboard.",0
+100,1. Domain and email,task,Find the DNS Records page in Vercel (you will use it in every step below),"In Vercel click Domains in the top menu.
+Click your domain name.
+Open the DNS Records section and click Add. You will see fields: Name, Type (A, CNAME, MX or TXT), Value, and Priority for MX.
+Tip: In Name, type only the part before your domain. For resend._domainkey.yourdomain.com enter resend._domainkey. For the main domain itself leave Name empty (or @ if asked).
+Tip: Copy and paste values exactly. A missing character or extra space is the most common reason verification fails.
+Warning: DNS changes can take a few minutes up to a few hours to take effect.
+Search: Vercel add DNS record",0
+3,1. Domain and email,task,Add the domain in Resend and paste its DKIM/SPF records into Vercel DNS,"Go to resend.com, click Sign up (free) and confirm your email.
+In the left menu click Domains, then Add Domain.
+Type your domain (yourdomain.com). If asked for a region, choose the one closest to your users.
+Resend now shows a table of DNS records (usually TXT and MX). Keep this tab open.
+In another tab open Vercel, Domains, your domain, DNS Records. Add each record from the table, copying Type, Name and Value exactly. For MX records also copy the Priority.
+Back in Resend click Verify DNS Records. The status becomes Verified (a few minutes to a few hours).
+Tip: Do not delete records Vercel already created for your website.
+Search: Resend verify domain",0
+101,1. Domain and email,task,"Create two Resend API keys (one for Supabase, one for Gmail)","In Resend click API Keys in the left menu, then Create API Key.
+Name it supabase-auth, set Permission to Sending access, and choose your domain.
+Click Add and copy the key immediately (it starts with re_). Resend shows it only once.
+Save it in your password manager.
+Repeat to create a second key named gmail-support. You will use it in the Gmail step.
+Warning: Never paste an API key into your website code or push it to GitHub. Anyone with it can send email as you.",0
+4,1. Domain and email,task,Enter Resend SMTP in Supabase (smtp.resend.com / 465 / user resend / API key as password),"Go to supabase.com/dashboard and open your project.
+In the left sidebar click Authentication.
+Open Emails, then the SMTP Settings tab. If you cannot find it, use the dashboard search box for SMTP. Older dashboards have it under Project Settings, Authentication.
+Turn on Enable custom SMTP.
+Fill in: Sender email no-reply@yourdomain.com, Sender name your app name, Host smtp.resend.com, Port 465, Username resend, Password the supabase-auth API key.
+Click Save changes.
+Tip: The sender email must use the domain you verified in Resend, or the emails will be rejected.
+Search: Supabase custom SMTP Resend",0
+5,1. Domain and email,task,Set Supabase Site URL and redirect URLs; customise the email templates,"In Supabase go to Authentication, then URL Configuration.
+Set Site URL to https://yourdomain.com.
+Under Redirect URLs click Add URL and add https://yourdomain.com/** . For local testing also add http://localhost:3000/** (use your own dev port).
+Save. Then go to Authentication, Emails, Templates.
+Open Confirm sign up, Reset password and Magic link one by one. Change the subject and wording to match your app.
+Keep the link placeholder in each template (for example {{ .ConfirmationURL }}) exactly as it is, or the link will break.
+Warning: A wrong Site URL makes confirmation links open the wrong website.",0
+6,1. Domain and email,task,Create the support@ alias in ImprovMX and add its MX + SPF records,"Go to improvmx.com and sign up (free plan).
+Enter your domain and continue.
+Create an alias: type support and set it to forward to your Gmail address. A catch-all (*) is optional.
+ImprovMX shows the records to add: two MX records and one TXT (SPF). The MX values are normally mx1.improvmx.com (priority 10) and mx2.improvmx.com (priority 20).
+In Vercel DNS Records add both MX records (Name empty, Type MX, the Value, the Priority) and the TXT record.
+Back in ImprovMX click Check DNS until the records show a green tick.
+Tip: A domain can have only one SPF record. If a TXT starting with v=spf1 already exists on the main domain, merge both into one line instead of adding a second.
+Tip: Resend's records usually sit on a subdomain, so they do not clash with these.
+Search: ImprovMX setup Vercel",0
+7,1. Domain and email,task,Set up Gmail Send mail as for support@ using Resend SMTP,"Open Gmail in a computer browser (not the phone app) and click the gear icon, then See all settings.
+Open the Accounts and Import tab. Next to Send mail as click Add another email address.
+Enter Name (for example MyApp Support) and Email support@yourdomain.com, then Next Step.
+Choose Send through SMTP server: Server smtp.resend.com, Port 465, Username resend, Password the gmail-support API key, Secured connection using SSL. Click Add Account.
+Gmail sends a confirmation email to support@yourdomain.com. Thanks to ImprovMX it lands in your Gmail inbox. Click the link or enter the code.
+When writing a new email click the From line and choose support@yourdomain.com. Replies automatically use the address the message was sent to.
+Warning: If Gmail shows an error, re-check the API key and that your domain is Verified in Resend.
+Search: Gmail send mail as custom SMTP",0
+8,1. Domain and email,task,Add the _dmarc TXT record,"In Vercel go to Domains, your domain, DNS Records, then Add.
+Type TXT, Name _dmarc, Value v=DMARC1; p=none; rua=mailto:you@gmail.com (use your real email).
+Save. p=none only monitors and blocks nothing while you test.
+Check it: search MXToolbox DMARC lookup, enter yourdomain.com and confirm the record appears.
+Tip: After a few weeks with no problems you can tighten the policy to p=quarantine.",0
+9,1. Domain and email,task,Test signup / password reset / magic link end to end,"From your personal email send a message to support@yourdomain.com. It should reach Gmail within a minute.
+Reply from support@ using the From dropdown and confirm the reply arrives.
+On the received reply click the three dots, then Show original. SPF, DKIM and DMARC should all say PASS.
+Sign up in your app using a different email address. Confirm the email arrives from no-reply@ and is not in spam.
+Test Reset password and Magic link too. Click each link and confirm it opens your real domain.
+Optional: search mail-tester, send a test email to the address it gives you and aim for 8/10 or higher.
+Tip: If an email does not arrive, check Resend, Emails (logs) and Supabase, Authentication, Logs.",0
+10,2. Auto-record transactions,guide,"Idea: bank and UPI alert emails are forwarded to a dedicated address (for example track@yourdomain.com). An inbound-email webhook calls a Supabase Edge Function that extracts amount, date and merchant and saves a pending transaction for you to confirm. Check that your email provider offers inbound email on its free plan before building. Privacy: store only the parsed fields, not the full email body, and tell users clearly what is read. Start with one bank format, then add others.",,0
+11,2. Auto-record transactions,task,Collect 5-10 real alert emails from one bank/UPI app (hide personal details) as test samples,,0
+12,2. Auto-record transactions,task,Create the receiving address and point inbound mail to a webhook,,0
+13,2. Auto-record transactions,task,Write a Supabase Edge Function that parses amount / date / merchant / debit-credit,,0
+14,2. Auto-record transactions,task,Save results as pending transactions with a Confirm / Edit / Reject screen,,0
+15,2. Auto-record transactions,task,Verify the sender and add a per-user secret so strangers cannot inject transactions,,0
+16,2. Auto-record transactions,task,Write a Gmail filter guide so users can auto-forward only their bank alerts,,0
+17,3. Five launch posts,guide,"Goal: show why an app beats Excel or a notebook. Keep each post to one problem, one screenshot or short clip, and one call to action. Post on LinkedIn, X, Reddit and Instagram as suits your audience.",,0
+18,3. Five launch posts,task,Post 1: Why your Excel expense sheet breaks after month 3,,0
+19,3. Five launch posts,task,Post 2: Notebook vs app: what you forget to write down,,0
+20,3. Five launch posts,task,Post 3: Demo: bank alert email becomes a recorded transaction automatically,,0
+21,3. Five launch posts,task,Post 4: Moving from Excel in 5 minutes (CSV import),,0
+22,3. Five launch posts,task,Post 5: Behind the build: what I learned making this solo,,0
+23,4. Mobile app (Google Play),guide,"Easiest hybrid route: wrap your existing web app with Capacitor, so one codebase serves web and Android. Google Play needs a one-time developer registration fee. New personal developer accounts usually must run a closed test with a group of testers for about two weeks before production access; check Google's current rules before planning dates. Build the app as a responsive PWA first.",,0
+24,4. Mobile app (Google Play),task,Make the web app fully mobile-responsive,,0
+25,4. Mobile app (Google Play),task,Add Capacitor and build an Android project,,0
+26,4. Mobile app (Google Play),task,"Test on a real phone: login, deep links for email confirmation",,0
+27,4. Mobile app (Google Play),task,Create the Play Console account and pay the registration fee,,0
+28,4. Mobile app (Google Play),task,"Prepare store listing: icon, screenshots, description, privacy policy URL",,0
+29,4. Mobile app (Google Play),task,Recruit testers and run the closed test,,0
+30,4. Mobile app (Google Play),task,Apply for production access and publish,,0
+31,5. Reaching potential users,guide,"Start where people already complain about spreadsheets. Talk to 10 people before you write more code. Track every conversation in a simple list (name, channel, feedback, follow-up date).",,0
+32,5. Reaching potential users,task,Write a one-line pitch and define your first target group (students / freelancers / households),,0
+33,5. Reaching potential users,task,Message 20 people you know and ask how they track money today,,0
+34,5. Reaching potential users,task,"Join 3-5 relevant communities (Reddit finance subs, Telegram/WhatsApp groups) and help before promoting",,0
+35,5. Reaching potential users,task,Build a simple landing page with a waitlist form,,0
+36,5. Reaching potential users,task,Offer the first 50 users free in exchange for feedback calls,,0
+37,5. Reaching potential users,task,Ask each happy user for one referral and one testimonial,,0
+38,5. Reaching potential users,task,"Review weekly: signups, active users, feedback themes",,0
+39,6. Move from Supabase to AWS,guide,"Do this only with real paying customers and a clear reason (cost, compliance, scale). Supabase is Postgres, so your data can move with pg_dump. The harder parts are auth, row-level security rules, storage and edge functions, which you must replace (for example RDS or Aurora for the database, Cognito for auth, S3 for files, Lambda for functions). Consider upgrading Supabase to its paid plan first; it is usually far less work than a migration.",,0
+40,6. Move from Supabase to AWS,task,"Define the trigger: for example 50+ paying users, or a limit you keep hitting",,0
+41,6. Move from Supabase to AWS,task,"List every Supabase feature you use (auth, RLS, storage, realtime, functions)",,0
+42,6. Move from Supabase to AWS,task,Try the paid Supabase plan before deciding to leave,,0
+43,6. Move from Supabase to AWS,task,Build the AWS copy in staging and test a pg_dump restore,,0
+44,6. Move from Supabase to AWS,task,"Plan the cutover: announce downtime, take a final backup, switch DNS and keys",,0
+45,7. Future ideas,future,CSV / Excel import so users can bring old sheets,,0
+46,7. Future ideas,future,Budgets with alerts when a category is almost used,,0
+47,7. Future ideas,future,Recurring transactions and bill reminders,,0
+48,7. Future ideas,future,Receipt photo upload with automatic reading,,0
+49,7. Future ideas,future,Monthly report emailed to the user (sent through Resend),,0
+50,7. Future ideas,future,Export data to CSV / PDF and automatic backups,,0
+51,7. Future ideas,future,Multi-currency and shared household accounts,,0
+52,7. Future ideas,future,Subscription billing (Razorpay or Stripe) and a referral programme,,0
