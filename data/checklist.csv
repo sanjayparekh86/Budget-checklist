@@ -1,0 +1,53 @@
+id,section,type,text,done
+1,1. Domain and email,guide,"Full steps are in your setup doc: https://claude.ai/artifact/DKKUaRRwxsnpbCCqNZarJ3. Stack: domain on Vercel, Resend free for no-reply@ and Supabase auth emails, ImprovMX free for support@, Gmail Send mail as for replies. Vercel Hobby is fine while the app is free; move to Pro before charging.",0
+2,1. Domain and email,task,Buy the domain on Vercel and attach it to your project (SSL is automatic),0
+3,1. Domain and email,task,Add the domain in Resend and paste its DKIM/SPF records into Vercel DNS,0
+4,1. Domain and email,task,Enter Resend SMTP in Supabase (smtp.resend.com / 465 / user resend / API key as password),0
+5,1. Domain and email,task,Set Supabase Site URL and redirect URLs; customise the email templates,0
+6,1. Domain and email,task,Create the support@ alias in ImprovMX and add its MX + SPF records,0
+7,1. Domain and email,task,Set up Gmail Send mail as for support@ using Resend SMTP,0
+8,1. Domain and email,task,Add the _dmarc TXT record,0
+9,1. Domain and email,task,Test signup / password reset / magic link end to end,0
+10,2. Auto-record transactions,guide,"Idea: bank and UPI alert emails are forwarded to a dedicated address (for example track@yourdomain.com). An inbound-email webhook calls a Supabase Edge Function that extracts amount, date and merchant and saves a pending transaction for you to confirm. Check that your email provider offers inbound email on its free plan before building. Privacy: store only the parsed fields, not the full email body, and tell users clearly what is read. Start with one bank format, then add others.",0
+11,2. Auto-record transactions,task,Collect 5-10 real alert emails from one bank/UPI app (hide personal details) as test samples,0
+12,2. Auto-record transactions,task,Create the receiving address and point inbound mail to a webhook,0
+13,2. Auto-record transactions,task,Write a Supabase Edge Function that parses amount / date / merchant / debit-credit,0
+14,2. Auto-record transactions,task,Save results as pending transactions with a Confirm / Edit / Reject screen,0
+15,2. Auto-record transactions,task,Verify the sender and add a per-user secret so strangers cannot inject transactions,0
+16,2. Auto-record transactions,task,Write a Gmail filter guide so users can auto-forward only their bank alerts,0
+17,3. Five launch posts,guide,"Goal: show why an app beats Excel or a notebook. Keep each post to one problem, one screenshot or short clip, and one call to action. Post on LinkedIn, X, Reddit and Instagram as suits your audience.",0
+18,3. Five launch posts,task,"Post 1: Why your Excel expense sheet breaks after month 3",0
+19,3. Five launch posts,task,"Post 2: Notebook vs app: what you forget to write down",0
+20,3. Five launch posts,task,"Post 3: Demo: bank alert email becomes a recorded transaction automatically",0
+21,3. Five launch posts,task,"Post 4: Moving from Excel in 5 minutes (CSV import)",0
+22,3. Five launch posts,task,"Post 5: Behind the build: what I learned making this solo",0
+23,4. Mobile app (Google Play),guide,"Easiest hybrid route: wrap your existing web app with Capacitor, so one codebase serves web and Android. Google Play needs a one-time developer registration fee. New personal developer accounts usually must run a closed test with a group of testers for about two weeks before production access; check Google's current rules before planning dates. Build the app as a responsive PWA first.",0
+24,4. Mobile app (Google Play),task,Make the web app fully mobile-responsive,0
+25,4. Mobile app (Google Play),task,Add Capacitor and build an Android project,0
+26,4. Mobile app (Google Play),task,"Test on a real phone: login, deep links for email confirmation",0
+27,4. Mobile app (Google Play),task,Create the Play Console account and pay the registration fee,0
+28,4. Mobile app (Google Play),task,"Prepare store listing: icon, screenshots, description, privacy policy URL",0
+29,4. Mobile app (Google Play),task,Recruit testers and run the closed test,0
+30,4. Mobile app (Google Play),task,Apply for production access and publish,0
+31,5. Reaching potential users,guide,"Start where people already complain about spreadsheets. Talk to 10 people before you write more code. Track every conversation in a simple list (name, channel, feedback, follow-up date).",0
+32,5. Reaching potential users,task,Write a one-line pitch and define your first target group (students / freelancers / households),0
+33,5. Reaching potential users,task,Message 20 people you know and ask how they track money today,0
+34,5. Reaching potential users,task,"Join 3-5 relevant communities (Reddit finance subs, Telegram/WhatsApp groups) and help before promoting",0
+35,5. Reaching potential users,task,Build a simple landing page with a waitlist form,0
+36,5. Reaching potential users,task,Offer the first 50 users free in exchange for feedback calls,0
+37,5. Reaching potential users,task,Ask each happy user for one referral and one testimonial,0
+38,5. Reaching potential users,task,"Review weekly: signups, active users, feedback themes",0
+39,6. Move from Supabase to AWS,guide,"Do this only with real paying customers and a clear reason (cost, compliance, scale). Supabase is Postgres, so your data can move with pg_dump. The harder parts are auth, row-level security rules, storage and edge functions, which you must replace (for example RDS or Aurora for the database, Cognito for auth, S3 for files, Lambda for functions). Consider upgrading Supabase to its paid plan first; it is usually far less work than a migration.",0
+40,6. Move from Supabase to AWS,task,"Define the trigger: for example 50+ paying users, or a limit you keep hitting",0
+41,6. Move from Supabase to AWS,task,"List every Supabase feature you use (auth, RLS, storage, realtime, functions)",0
+42,6. Move from Supabase to AWS,task,Try the paid Supabase plan before deciding to leave,0
+43,6. Move from Supabase to AWS,task,Build the AWS copy in staging and test a pg_dump restore,0
+44,6. Move from Supabase to AWS,task,"Plan the cutover: announce downtime, take a final backup, switch DNS and keys",0
+45,7. Future ideas,future,CSV / Excel import so users can bring old sheets,0
+46,7. Future ideas,future,Budgets with alerts when a category is almost used,0
+47,7. Future ideas,future,Recurring transactions and bill reminders,0
+48,7. Future ideas,future,Receipt photo upload with automatic reading,0
+49,7. Future ideas,future,Monthly report emailed to the user (sent through Resend),0
+50,7. Future ideas,future,Export data to CSV / PDF and automatic backups,0
+51,7. Future ideas,future,Multi-currency and shared household accounts,0
+52,7. Future ideas,future,Subscription billing (Razorpay or Stripe) and a referral programme,0

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch checklist</title>
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--ink:#1c2523;--mute:#5d6b67;--line:#d9e0dd;--ok:#1f7a5c;--accent:#2b4f9e;--soft:#eaf0ee;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#121816;--card:#1a2220;--ink:#e6ecea;--mute:#98a8a3;--line:#2c3935;--ok:#4cc79b;--accent:#8fb0ff;--soft:#222d2a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:28px 16px 64px}
+h1{font:600 2rem/1.2 Georgia,"Iowan Old Style",serif;margin:0 0 6px}
+.sub{color:var(--mute);margin:0 0 18px}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 20px;flex-wrap:wrap;color:var(--mute)}
+button{font:inherit;padding:6px 12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0 0 16px;padding:16px 18px}
+section.future{border-style:dashed}
+h2{font:600 1.15rem Georgia,serif;margin:0;display:flex;justify-content:space-between;gap:8px}
+h2 small{font:500 .85rem system-ui;color:var(--mute)}
+details{margin:10px 0;background:var(--soft);border-radius:8px;padding:8px 12px}
+summary{cursor:pointer;color:var(--accent);font-weight:600}
+details p{margin:8px 0 2px;overflow-wrap:anywhere}
+label{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
+label:first-of-type{border-top:0}
+input[type=checkbox]{width:20px;height:20px;margin-top:3px;accent-color:var(--ok);flex:none}
+label.done span{color:var(--mute);text-decoration:line-through}
+.err{padding:14px;border:1px solid #c0392b;border-radius:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>Launch checklist</h1>
+<p class="sub">Tick items as you finish them. Progress is saved in this browser.</p>
+<div class="bar" role="progressbar" aria-label="Overall progress"><i id="fill"></i></div>
+<div class="top"><span id="count"></span><span><button id="exp">Export CSV</button> <button id="rst">Reset progress</button></span></div>
+<div id="app">Loading…</div>
+</main>
+<script>
+const CSV='data/checklist.csv', KEY='launch-checklist-v1';
+let rows=[], saved={};
+try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+
+function parse(t){
+  const out=[];let r=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c=='"')q=true;
+    else if(c==','){r.push(f);f=''}
+    else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;r.push(f);f='';out.push(r);r=[]}
+    else f+=c}
+  if(f||r.length){r.push(f);out.push(r)}
+  const h=out.shift();
+  return out.filter(x=>x.length==h.length).map(x=>Object.fromEntries(h.map((k,i)=>[k,x[i]])));
+}
+const isDone=r=>r.id in saved?saved[r.id]:r.done==='1';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(saved))}catch(e){}};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const link=s=>esc(s).replace(/https?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+
+function render(){
+  const secs=[...new Set(rows.map(r=>r.section))];
+  document.getElementById('app').innerHTML=secs.map(s=>{
+    const items=rows.filter(r=>r.section==s), tasks=items.filter(r=>r.type!='guide');
+    const d=tasks.filter(isDone).length, fut=tasks.every(r=>r.type=='future');
+    return `<section class="${fut?'future':''}"><h2>${esc(s)}<small>${d}/${tasks.length}</small></h2>`+
+      items.filter(r=>r.type=='guide').map(g=>`<details><summary>How to implement</summary><p>${link(g.text)}</p></details>`).join('')+
+      tasks.map(r=>`<label class="${isDone(r)?'done':''}"><input type="checkbox" data-id="${r.id}" ${isDone(r)?'checked':''}><span>${esc(r.text)}</span></label>`).join('')+
+      `</section>`}).join('');
+  const core=rows.filter(r=>r.type=='task'), n=core.filter(isDone).length;
+  document.getElementById('count').textContent=`${n} of ${core.length} launch tasks done (future ideas not counted)`;
+  document.getElementById('fill').style.width=(core.length?n/core.length*100:0)+'%';
+}
+document.addEventListener('change',e=>{
+  if(e.target.dataset.id){saved[e.target.dataset.id]=e.target.checked;save();render()}});
+document.getElementById('rst').onclick=()=>{if(confirm('Clear all saved progress in this browser?')){saved={};save();render()}};
+document.getElementById('exp').onclick=()=>{
+  const q=v=>/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;
+  const csv=['id,section,type,text,done',...rows.map(r=>[r.id,r.section,r.type,r.text,isDone(r)?1:0].map(q).join(','))].join('\n')+'\n';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='checklist.csv';a.click();URL.revokeObjectURL(a.href)};
+
+fetch(CSV).then(r=>{if(!r.ok)throw 0;return r.text()}).then(t=>{rows=parse(t);render()})
+ .catch(()=>{document.getElementById('app').innerHTML='<div class="err">Could not load data/checklist.csv. Open this page through GitHub Pages or a local server (for example <code>python -m http.server</code>), not by double-clicking the file.</div>'});
+</script>
+</body>
+</html>
